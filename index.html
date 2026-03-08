@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Día Internacional de la Mujer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #fdf6ee;
+    --rose: #c2587a;
+    --deep-rose: #8b2252;
+    --blush: #f0c4d4;
+    --gold: #c9a96e;
+    --dark: #1a0e14;
+    --lilac: #c9a8c0;
+    --sage: #8aab8a;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow-x: hidden;
+    background: var(--dark);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  /* ── CANVAS ── */
+  #bg-canvas {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── INTRO SCREEN ── */
+  #intro {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: var(--dark);
+    cursor: pointer;
+    transition: opacity 1.2s ease, transform 1.2s ease;
+  }
+  #intro.hide { opacity: 0; pointer-events: none; transform: scale(1.05); }
+
+  .intro-date {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 18vw, 12rem);
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--blush), var(--rose), var(--gold), var(--blush));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradShift 4s ease infinite;
+    letter-spacing: -0.02em;
+  }
+  .intro-sub {
+    font-size: clamp(0.9rem, 2vw, 1.3rem);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--lilac);
+    margin-top: 1rem;
+    opacity: 0.8;
+  }
+  .intro-click {
+    margin-top: 3rem;
+    font-style: italic;
+    color: var(--gold);
+    font-size: 1.1rem;
+    animation: pulse 2s ease infinite;
+    letter-spacing: 0.1em;
+  }
+
+  @keyframes gradShift {
+    0%,100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* ── MAIN ── */
+  #main {
+    position: relative; z-index: 10;
+    min-height: 100vh;
+    opacity: 0; transition: opacity 1.5s ease 0.5s;
+    pointer-events: none;
+  }
+  #main.show { opacity: 1; pointer-events: auto; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.85rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1s ease 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 6.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    max-width: 900px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 1.2s ease 0.6s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--rose);
+  }
+  .hero-title .gold { color: var(--gold); }
+
+  .hero-subtitle {
+    margin-top: 2rem;
+    font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+    font-weight: 300;
+    color: var(--lilac);
+    max-width: 560px;
+    line-height: 1.7;
+    font-style: italic;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1s ease 1s forwards;
+  }
+
+  .hero-line {
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 2.5rem auto;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.4s forwards;
+  }
+
+  .scroll-hint {
+    position: absolute; bottom: 2.5rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--lilac); opacity: 0.5;
+    animation: fadeIn 1s ease 2s forwards, bobDown 2.5s ease 2s infinite;
+  }
+  .scroll-hint svg { width: 20px; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+  @keyframes bobDown {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ── FRASES SECTION ── */
+  .section {
+    padding: 6rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.75rem; letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 3rem; text-align: center;
+  }
+
+  .quotes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .quote-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(201,169,110,0.15);
+    border-radius: 2px;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+    cursor: default;
+  }
+  .quote-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 0;
+    background: linear-gradient(180deg, var(--rose), var(--gold));
+    transition: height 0.5s ease;
+  }
+  .quote-card:hover { 
+    transform: translateY(-4px); 
+    border-color: rgba(201,169,110,0.4);
+    background: rgba(255,255,255,0.06);
+  }
+  .quote-card:hover::before { height: 100%; }
+
+  .quote-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem; line-height: 0.5;
+    color: var(--rose); opacity: 0.3;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .quote-text {
+    font-style: italic;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--cream);
+    margin-bottom: 1.5rem;
+  }
+  .quote-author {
+    font-size: 0.8rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+  }
+
+  /* ── FLOWER POEM ── */
+  .poem-section {
+    padding: 6rem 2rem;
+    text-align: center;
+    background: linear-gradient(180deg, transparent, rgba(194,88,122,0.05), transparent);
+  }
+  .poem-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 400;
+    margin-bottom: 3rem;
+    color: var(--blush);
+  }
+  .poem-body {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    line-height: 2.2;
+    color: var(--cream);
+    font-style: italic;
+    font-weight: 300;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .poem-body span {
+    display: block;
+    opacity: 0;
+    transform: translateX(-15px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .poem-body span.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .poem-body .accent { color: var(--rose); }
+  .poem-body .gold { color: var(--gold); }
+
+  /* ── INTERACTIVE PETALS ── */
+  .petals-section {
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+  .petals-label {
+    font-size: 0.75rem; letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--lilac); margin-bottom: 1rem;
+  }
+  .petals-hint {
+    font-style: italic; color: var(--lilac); font-size: 1.1rem; margin-bottom: 3rem;
+  }
+  #petal-canvas {
+    border-radius: 50%;
+    cursor: crosshair;
+    display: block;
+    margin: 0 auto;
+    background: radial-gradient(circle at 50% 50%, rgba(194,88,122,0.08), transparent 70%);
+    border: 1px solid rgba(201,169,110,0.1);
+  }
+
+  /* ── CIERRE ── */
+  .closing {
+    padding: 8rem 2rem;
+    text-align: center;
+  }
+  .closing-main {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+  }
+  .closing-main em { font-style: italic; color: var(--rose); }
+  .closing-sub {
+    font-style: italic; color: var(--lilac);
+    font-size: 1.1rem; letter-spacing: 0.05em;
+  }
+  .closing-date {
+    margin-top: 3rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+  }
+
+  /* ── FLOATING PETALS CSS ── */
+  .petal-float {
+    position: fixed;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    font-size: 1.2rem;
+    animation: floatPetal 6s ease-in forwards;
+  }
+  @keyframes floatPetal {
+    0% { opacity: 0.9; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(-100vh) rotate(720deg); }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- INTRO -->
+<div id="intro" onclick="startExperience()">
+  <div class="intro-date">8M</div>
+  <div class="intro-sub">Día Internacional de la Mujer</div>
+  <div class="intro-click">✦ Toca para celebrar ✦</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">✦ 8 de Marzo · Solo para ti ✦</div>
+    <h1 class="hero-title">
+      Feliz día,<br>
+      mi querida<br>
+      <em>mujercita hermosa</em> 🌸
+    </h1>
+    <div class="hero-line"></div>
+    <p class="hero-subtitle">
+      Y no es porque hoy sea <em>el día</em> — es porque tú mereces ser celebrada cada día, a cada hora, en cada momento.
+    </p>
+    <div class="scroll-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+      Sigue leyendo
+    </div>
+  </section>
+
+  <!-- PERSONAL CARDS -->
+  <section class="section">
+    <div class="section-label">✦ Para ti, solo para ti ✦</div>
+    <div class="quotes-grid">
+      <div class="quote-card">
+        <span class="quote-mark">🌟</span>
+        <p class="quote-text">No te celebro solo porque hoy sea <em>el día de la mujer</em>. Te celebro porque eres tú — y eso solo ya es la razón más grande del mundo.</p>
+      </div>
+      <div class="quote-card">
+        <span class="quote-mark">🌸</span>
+        <p class="quote-text">Eres la mejor mujercita de este mundo... y de todo este universo. Sin exagerar. Sin comparación. Solo tú.</p>
+      </div>
+      <div class="quote-card">
+        <span class="quote-mark">💫</span>
+        <p class="quote-text">Que este día te recuerde lo increíble que eres — aunque tú a veces no lo veas. Yo sí lo veo. Siempre lo he visto.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- POEM -->
+  <div class="poem-section">
+    <h2 class="poem-title">Para la mejor mujercita<br>de este mundo y de todo el universo</h2>
+    <div class="poem-body" id="poem">
+      <span>Eres la persona más bonita que existe,</span>
+      <span class="accent">no por un día, sino por lo que eres cada día.</span>
+      <span>&nbsp;</span>
+      <span>Por tu fuerza, aunque a veces no la sientas.</span>
+      <span>Por tu corazón, aunque a veces lo escondes.</span>
+      <span>&nbsp;</span>
+      <span class="gold">Por todo lo que has vivido y seguido adelante.</span>
+      <span class="gold">Por todo lo que eres sin siquiera intentarlo.</span>
+      <span>&nbsp;</span>
+      <span>Hoy, mañana y siempre —</span>
+      <span class="accent">mereces ser celebrada. 🌸</span>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE PETALS -->
+  <section class="petals-section">
+    <div class="petals-label">✦ Jardín interactivo ✦</div>
+    <p class="petals-hint">Mueve el cursor para florecer</p>
+    <canvas id="petal-canvas" width="500" height="500"></canvas>
+  </section>
+
+  <!-- NOTE SECTION -->
+  <section class="section" style="max-width:720px; padding-bottom: 2rem;">
+    <div class="section-label">✦ Una notita para ti ✦</div>
+    <div class="quote-card" style="padding: 3rem 2.5rem; font-size: 1.15rem; line-height: 2; border-color: rgba(201,169,110,0.3); background: rgba(255,255,255,0.04); margin-bottom: 1.5rem;">
+      <p style="font-style: italic; color: var(--cream); margin-bottom: 1.5rem;">
+        Quiero que sepas que no te celebro solo por ser <span style="color:var(--rose)">el 8 de marzo</span> — te celebro porque mereces ser celebrada todos los días del año, en cada momento, con o sin fecha en el calendario.
+      </p>
+      <p style="font-style: italic; color: var(--cream); margin-bottom: 1.5rem;">
+        Gracias por ser como eres. Por cada sonrisa, por cada momento, por todo lo que has dado y todo lo que eres. Por existir exactamente como existes. Gracias por dejarme conocerte, por cada conversación, por cada cosa pequeña y grande que has compartido — todo eso tiene un valor que no se puede medir.
+      </p>
+      <p style="font-style: italic; color: var(--cream); margin-bottom: 1.5rem;">
+        Y aunque haya pasado lo que haya pasado — o lo que venga después — quiero que sepas esto muy bien: <span style="color: var(--gold)">siempre voy a estar aquí.</span> Siempre puedes contar conmigo para cualquier cosa, en cualquier momento, sin importar nada. Eso no cambia.
+      </p>
+      <p style="font-style: italic; color: var(--cream); margin-bottom: 1.5rem;">
+        Y sé que vas a lograr muchas cosas — eso no lo tengo duda. <span style="color: var(--rose)">Siempre voy a creer en ti.</span> No lo digo solo por sonar bonito. Lo digo porque lo siento, y eso nunca se va a ir. Así pase dos días, cuatro días, una semana, tres semanas, un mes, tres meses, ocho meses, un año, tres años... <span style="color: var(--gold)">siempre voy a creer en ti.</span>
+      </p>
+      <p style="font-style: italic; color: var(--cream); margin-bottom: 2rem;">
+        Y sí, a veces podemos tener tropiezos y tomar decisiones que no nos lleven al lugar que queremos — pero a pesar de eso, sé que vas a poder con todo lo que venga. Eres más fuerte de lo que crees. Y aunque a veces no lo sientas, ahí estaré yo para recordártelo. 🌸
+      </p>
+      <div style="border-top: 1px solid rgba(201,169,110,0.2); padding-top: 1.8rem; text-align: right;">
+        <p style="font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--rose); margin-bottom: 0.5rem;">
+          TE AMO 💕
+        </p>
+        <p style="font-size: 0.85rem; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase;">
+          Att: Tu Niño de Ojitos Bonitos<br>
+          <span style="font-style: italic; font-size: 0.75rem; opacity: 0.7; text-transform: none; letter-spacing: 0.05em;">(aunque ya no lo sea)</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- MINI NOTES -->
+    <div class="quotes-grid" style="margin-top: 2rem;">
+      <div class="quote-card">
+        <span class="quote-mark">🌟</span>
+        <p class="quote-text">Pase lo que pase, en los días buenos y en los que no lo son tanto — aquí voy a estar. Sin condiciones. Sin relojes. Sin límites.</p>
+      </div>
+      <div class="quote-card">
+        <span class="quote-mark">💛</span>
+        <p class="quote-text">Creer en ti no es un esfuerzo — es algo que me sale solo. Porque te conozco, y sé de lo que eres capaz, aunque tú a veces lo dudes.</p>
+      </div>
+      <div class="quote-card">
+        <span class="quote-mark">🌸</span>
+        <p class="quote-text">Los tropiezos no te definen. Todos caemos alguna vez en el camino, pero lo que realmente habla de ti es lo que haces después. Y yo ya lo sé: tú no te quedas en el suelo, tú te levantas, respiras hondo y sigues adelante. Siempre lo haces, porque tu fuerza es más grande que cualquier caída.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing">
+    <h2 class="closing-main">
+      Feliz día,<br><em>mujercita hermosa</em> 🌷
+    </h2>
+    <p class="closing-sub">Hoy, mañana y siempre — esto es para ti.</p>
+    <div class="closing-date">8 · III · 2026</div>
+  </section>
+
+</div>
+
+<script>
+/* ══ BG PARTICLES ══ */
+const bgCanvas = document.getElementById('bg-canvas');
+const bctx = bgCanvas.getContext('2d');
+let W, H, particles = [];
+
+function resizeBg() {
+  W = bgCanvas.width = window.innerWidth;
+  H = bgCanvas.height = window.innerHeight;
+}
+resizeBg();
+window.addEventListener('resize', resizeBg);
+
+for (let i = 0; i < 80; i++) {
+  particles.push({
+    x: Math.random() * 2000,
+    y: Math.random() * 2000,
+    r: Math.random() * 1.5 + 0.3,
+    vx: (Math.random() - 0.5) * 0.15,
+    vy: (Math.random() - 0.5) * 0.15,
+    a: Math.random()
+  });
+}
+
+function animBg() {
+  bctx.clearRect(0, 0, W, H);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+    if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+    p.a += 0.005;
+    const alpha = (Math.sin(p.a) * 0.5 + 0.5) * 0.4;
+    bctx.beginPath();
+    bctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    bctx.fillStyle = `rgba(201,169,110,${alpha})`;
+    bctx.fill();
+  });
+  requestAnimationFrame(animBg);
+}
+animBg();
+
+/* ══ INTRO ══ */
+function startExperience() {
+  document.getElementById('intro').classList.add('hide');
+  document.getElementById('main').classList.add('show');
+  launchPetals();
+  setTimeout(initPoem, 1500);
+  initPetalCanvas();
+}
+
+/* ══ FLOATING PETALS ══ */
+const emojis = ['🌸','🌷','🌺','✿','❀','💐','🌹'];
+function launchPetals() {
+  for (let i = 0; i < 18; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'petal-float';
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.bottom = '-10px';
+      p.style.fontSize = (Math.random() * 1.5 + 0.8) + 'rem';
+      p.style.animationDuration = (Math.random() * 4 + 4) + 's';
+      document.body.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }, i * 180);
+  }
+}
+
+/* ══ POEM REVEAL ══ */
+function initPoem() {
+  const spans = document.querySelectorAll('#poem span');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const lines = e.target.parentElement.querySelectorAll('span');
+        lines.forEach((l, i) => {
+          setTimeout(() => l.classList.add('visible'), i * 200);
+        });
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  observer.observe(document.getElementById('poem'));
+}
+
+/* ══ PETAL CANVAS (interactive garden) ══ */
+function initPetalCanvas() {
+  const canvas = document.getElementById('petal-canvas');
+  const ctx = canvas.getContext('2d');
+  let flowers = [];
+  let mouse = { x: 250, y: 250 };
+
+  // Resize for mobile
+  const size = Math.min(window.innerWidth - 40, 500);
+  canvas.width = size; canvas.height = size;
+
+  class Flower {
+    constructor(x, y) {
+      this.x = x; this.y = y;
+      this.size = 0;
+      this.maxSize = Math.random() * 25 + 10;
+      this.petals = Math.floor(Math.random() * 3) + 5;
+      this.angle = Math.random() * Math.PI * 2;
+      this.color = [`#c2587a`,`#c9a96e`,`#c9a8c0`,`#f0c4d4`,`#8aab8a`][Math.floor(Math.random()*5)];
+      this.born = Date.now();
+      this.life = Math.random() * 4000 + 3000;
+      this.alpha = 0;
+      this.speed = Math.random() * 0.4 + 0.3;
+    }
+    update() {
+      const age = Date.now() - this.born;
+      const t = age / this.life;
+      if (t < 0.2) { this.size = this.maxSize * (t / 0.2); this.alpha = t / 0.2; }
+      else if (t < 0.7) { this.size = this.maxSize; this.alpha = 1; }
+      else { this.alpha = 1 - (t - 0.7) / 0.3; }
+      this.angle += 0.003 * this.speed;
+      return t < 1;
+    }
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.alpha * 0.85;
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      for (let i = 0; i < this.petals; i++) {
+        ctx.save();
+        ctx.rotate((i / this.petals) * Math.PI * 2);
+        ctx.beginPath();
+        ctx.ellipse(0, -this.size * 0.7, this.size * 0.35, this.size * 0.7, 0, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.restore();
+      }
+      // Center
+      ctx.beginPath();
+      ctx.arc(0, 0, this.size * 0.25, 0, Math.PI * 2);
+      ctx.fillStyle = '#fdf6ee';
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  let lastSpawn = 0;
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - r.left;
+    mouse.y = e.clientY - r.top;
+    const now = Date.now();
+    if (now - lastSpawn > 120) {
+      flowers.push(new Flower(mouse.x + (Math.random()-0.5)*20, mouse.y + (Math.random()-0.5)*20));
+      lastSpawn = now;
+    }
+  });
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const r = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    mouse.x = t.clientX - r.left; mouse.y = t.clientY - r.top;
+    const now = Date.now();
+    if (now - lastSpawn > 100) {
+      flowers.push(new Flower(mouse.x + (Math.random()-0.5)*20, mouse.y + (Math.random()-0.5)*20));
+      lastSpawn = now;
+    }
+  }, { passive: false });
+
+  // Initial flowers
+  for (let i = 0; i < 12; i++) {
+    setTimeout(() => {
+      const angle = (i / 12) * Math.PI * 2;
+      const r = 120 + Math.random() * 80;
+      flowers.push(new Flower(size/2 + Math.cos(angle)*r, size/2 + Math.sin(angle)*r));
+    }, i * 150);
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    flowers = flowers.filter(f => f.update());
+    flowers.forEach(f => f.draw());
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+/* ══ SCROLL OBSERVER (quote cards) ══ */
+const cards = document.querySelectorAll('.quote-card');
+const cardObs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }, 100 * [...cards].indexOf(e.target));
+    }
+  });
+}, { threshold: 0.1 });
+cards.forEach(c => {
+  c.style.opacity = '0';
+  c.style.transform = 'translateY(30px)';
+  c.style.transition = 'opacity 0.7s ease, transform 0.7s ease, border-color 0.4s ease, background 0.4s ease';
+  cardObs.observe(c);
+});
+</script>
+</body>
+</html>
